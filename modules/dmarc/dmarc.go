@@ -18,6 +18,7 @@ import (
 	"github.com/miekg/dns"
 	"github.com/zmap/zdns"
 	"github.com/zmap/zdns/modules/miekg"
+	log "github.com/sirupsen/logrus"
 )
 
 // result to be returned by scan of host
@@ -52,6 +53,9 @@ type RoutineLookupFactory struct {
 func (s *RoutineLookupFactory) MakeLookup() (zdns.Lookup, error) {
 	a := Lookup{Factory: s}
 	nameServer := s.Factory.RandomNameServer()
+	if ( "_dmarc." != s.Factory.GlobalConf.NamePrefix ) {
+		log.Warning("When using DMARC module, --prefix=_dmarc. should be used. (https://tools.ietf.org/html/rfc7489#section-6.1)")
+	}
 	a.Initialize(nameServer, dns.TypeTXT, dns.ClassINET, &s.RoutineLookupFactory)
 	a.Prefix = "v=DMARC"
 	return &a, nil
